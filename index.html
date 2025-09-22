@@ -1,0 +1,437 @@
+﻿
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SW.BERNHARDT - Legal Assistant Platform</title>
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+    <!-- Matrix Background -->
+    <canvas id="matrix-canvas" class="matrix-background"></canvas>
+    
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <span class="brand-icon">⚖️</span>
+                <span class="brand-text">SW.BERNHARDT</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#home" class="nav-item active" data-section="home">🏠 หน้าหลัก</a>
+                <a href="#calculator" class="nav-item" data-section="calculator">💰 คำนวณสินเชื่อ</a>
+                <a href="#scanner" class="nav-item" data-section="scanner">📄 สแกนสัญญา</a>
+                <a href="#legal-info" class="nav-item" data-section="legal-info">📚 ข้อมูลกฎหมาย</a>
+                <a href="#contact" class="nav-item" data-section="contact">📞 ติดต่อ</a>
+            </div>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <div class="hero-section">
+                <div class="hero-content">
+                    <h1 class="hero-title">SW.BERNHARDT</h1>
+                    <h2 class="hero-subtitle">Legal Assistant Platform</h2>
+                    <p class="hero-description">
+                        ระบบช่วยเหลือทางกฎหมายด้วย AI สำหรับประชาชนไทย<br>
+                        ตรวจสอบสัญญา คำนวณสินเชื่อ และให้คำปรึกษาเบื้องต้น
+                    </p>
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary" onclick="showSection('calculator')">
+                            💰 เริ่มคำนวณสินเชื่อ
+                        </button>
+                        <button class="btn btn-secondary" onclick="showSection('scanner')">
+                            📄 สแกนสัญญา
+                        </button>
+                    </div>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="currentTime">00:00:00</div>
+                        <div class="stat-label">เวลาปัจจุบัน</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">15%</div>
+                        <div class="stat-label">อัตราดอกเบี้ยสูงสุด</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">บริการตลอดเวลา</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="features-section">
+                <h3 class="section-title">🎯 ฟีเจอร์หลัก</h3>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">💰</div>
+                        <h4 class="feature-title">เครื่องคำนวณสินเชื่อ</h4>
+                        <p class="feature-description">
+                            คำนวณค่างวดรายเดือน ตรวจสอบอัตราดอกเบี้ยตามกฎหมาย
+                            และแสดงตารางการผ่อนชำระ
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📄</div>
+                        <h4 class="feature-title">เครื่องสแกนสัญญา</h4>
+                        <p class="feature-description">
+                            อัปโหลดสัญญาเพื่อวิเคราะห์ข้อความ ตรวจสอบข้อผิดกฎหมาย
+                            และรับคำแนะนำ
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📚</div>
+                        <h4 class="feature-title">ฐานข้อมูลกฎหมาย</h4>
+                        <p class="feature-description">
+                            ข้อมูลกฎหมายที่เกี่ยวข้องกับสินเชื่อ สิทธิผู้บริโภค
+                            และหน่วยงานที่เกี่ยวข้อง
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Calculator Section -->
+        <section id="calculator" class="section">
+            <div class="section-header">
+                <h2 class="section-title">💰 เครื่องคำนวณสินเชื่อ</h2>
+                <p class="section-description">คำนวณค่างวดรายเดือนและตรวจสอบความถูกต้องตามกฎหมาย</p>
+            </div>
+
+            <div class="calculator-container">
+                <div class="calculator-form">
+                    <div class="form-group">
+                        <label for="loanAmount">💰 จำนวนเงินกู้ (บาท)</label>
+                        <input type="number" id="loanAmount" placeholder="เช่น 100000" min="1" max="10000000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="interestRate">📊 อัตราดอกเบี้ย (% ต่อปี)</label>
+                        <input type="number" id="interestRate" placeholder="เช่น 12.5" min="0.1" max="100" step="0.1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="loanTerm">📅 ระยะเวลา (เดือน)</label>
+                        <input type="number" id="loanTerm" placeholder="เช่น 24" min="1" max="600">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="loanType">🏷️ ประเภทสินเชื่อ</label>
+                        <select id="loanType">
+                            <option value="personal">สินเชื่อส่วนบุคคล</option>
+                            <option value="commercial">สินเชื่อพาณิชย์</option>
+                            <option value="creditCard">บัตรเครดิต</option>
+                            <option value="mortgage">สินเชื่อบ้าน</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-primary btn-calculate" onclick="calculateLoan()">
+                        🧮 คำนวณ
+                    </button>
+                </div>
+
+                <div id="calculatorResults" class="calculator-results">
+                    <!-- ผลการคำนวณจะแสดงที่นี่ -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Scanner Section -->
+        <section id="scanner" class="section">
+            <div class="section-header">
+                <h2 class="section-title">📄 เครื่องสแกนสัญญา</h2>
+                <p class="section-description">อัปโหลดสัญญาเพื่อวิเคราะห์และตรวจสอบข้อผิดกฎหมาย</p>
+            </div>
+
+            <div class="scanner-container">
+                <div id="uploadSection" class="upload-section">
+                    <div class="upload-area">
+                        <div class="upload-icon">📁</div>
+                        <h3>อัปโหลดไฟล์สัญญา</h3>
+                        <p>รองรับไฟล์ PDF, รูปภาพ (JPG, PNG), และ DOCX</p>
+                        <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png,.docx,.txt" onchange="handleFileSelect(event)">
+                        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                            📂 เลือกไฟล์
+                        </button>
+                    </div>
+                </div>
+
+                <div id="filePreview" class="file-preview">
+                    <div class="preview-header">
+                        <h4>ไฟล์ที่เลือก</h4>
+                        <button class="btn btn-small" onclick="resetScanner()">❌ ยกเลิก</button>
+                    </div>
+                    <div id="previewContent" class="preview-content">
+                        <!-- ตัวอย่างไฟล์จะแสดงที่นี่ -->
+                    </div>
+                    <button class="btn btn-primary" onclick="analyzeContract()">
+                        🔍 เริ่มวิเคราะห์
+                    </button>
+                </div>
+
+                <div id="analysisSection" class="analysis-section">
+                    <div class="analysis-progress">
+                        <h4 id="scanningText">กำลังวิเคราะห์...</h4>
+                        <div class="progress-bar">
+                            <div id="progressFill" class="progress-fill"></div>
+                        </div>
+                        <div id="scanningSteps" class="scanning-steps">
+                            <!-- ขั้นตอนการสแกนจะแสดงที่นี่ -->
+                        </div>
+                    </div>
+                </div>
+
+                <div id="resultsContainer" class="results-container">
+                    <div class="results-header">
+                        <h3>📊 ผลการวิเคราะห์</h3>
+                        <div class="results-actions">
+                            <button class="btn btn-primary" onclick="generateReport()">📊 สร้างรายงาน</button>
+                            <button class="btn" onclick="exportAnalysis()">💾 ส่งออก</button>
+                            <button class="btn" onclick="resetScanner()">🔄 วิเคราะห์ใหม่</button>
+                        </div>
+                    </div>
+                    
+                    <div class="results-content">
+                        <div class="result-section">
+                            <h4>📋 สรุปสัญญา</h4>
+                            <div id="contractSummary" class="contract-summary">
+                                <!-- สรุปสัญญาจะแสดงที่นี่ -->
+                            </div>
+                        </div>
+                        
+                        <div class="result-section">
+                            <h4>⚖️ ประเด็นทางกฎหมาย</h4>
+                            <div id="legalIssues" class="legal-issues">
+                                <!-- ประเด็นกฎหมายจะแสดงที่นี่ -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Legal Info Section -->
+        <section id="legal-info" class="section">
+            <div class="section-header">
+                <h2 class="section-title">📚 ข้อมูลกฎหมาย</h2>
+                <p class="section-description">ข้อมูลกฎหมายและหน่วยงานที่เกี่ยวข้องกับสินเชื่อและสิทธิผู้บริโภค</p>
+            </div>
+
+            <div class="legal-info-container">
+                <div class="info-tabs">
+                    <button class="tab-btn active" onclick="showTab('laws')">⚖️ กฎหมาย</button>
+                    <button class="tab-btn" onclick="showTab('agencies')">🏛️ หน่วยงาน</button>
+                    <button class="tab-btn" onclick="showTab('rights')">🛡️ สิทธิผู้บริโภค</button>
+                </div>
+
+                <div id="laws" class="tab-content active">
+                    <div class="law-item">
+                        <h4>📜 ประมวลกฎหมายแพ่งและพาณิชย์ มาตรา 656</h4>
+                        <p><strong>เรื่อง:</strong> อัตราดอกเบี้ยสูงสุด</p>
+                        <p><strong>สาระสำคัญ:</strong> อัตราดอกเบี้ยต้องไม่เกิน 15% ต่อปี หากเกินจะถือเป็นโมฆะ</p>
+                        <a href="#" class="law-link">📖 อ่านเพิ่มเติม</a>
+                    </div>
+                    
+                    <div class="law-item">
+                        <h4>📜 พระราชบัญญัติคุ้มครองผู้บริโภค พ.ศ. 2522</h4>
+                        <p><strong>เรื่อง:</strong> การคุ้มครองผู้บริโภคด้านสินเชื่อ</p>
+                        <p><strong>สาระสำคัญ:</strong> ห้ามมีข้อสัญญาที่ไม่เป็นธรรมต่อผู้บริโภค</p>
+                        <a href="#" class="law-link">📖 อ่านเพิ่มเติม</a>
+                    </div>
+                    
+                    <div class="law-item">
+                        <h4>📜 พระราชบัญญัติธุรกิจสถาบันการเงิน พ.ศ. 2551</h4>
+                        <p><strong>เรื่อง:</strong> การกำกับดูแลสถาบันการเงิน</p>
+                        <p><strong>สาระสำคัญ:</strong> กำหนดหลักเกณฑ์การให้สินเชื่อและการเปิดเผยข้อมูล</p>
+                        <a href="#" class="law-link">📖 อ่านเพิ่มเติม</a>
+                    </div>
+                </div>
+
+                <div id="agencies" class="tab-content">
+                    <div class="agency-item">
+                        <h4>🏛️ ธนาคารแห่งประเทศไทย (BOT)</h4>
+                        <p><strong>หน้าที่:</strong> กำกับดูแลสถาบันการเงิน</p>
+                        <p><strong>โทร:</strong> 0-2283-5353</p>
+                        <p><strong>เว็บไซต์:</strong> www.bot.or.th</p>
+                    </div>
+                    
+                    <div class="agency-item">
+                        <h4>🏛️ สำนักงานคณะกรรมการคุ้มครองผู้บริโภค</h4>
+                        <p><strong>หน้าที่:</strong> รับเรื่องร้องเรียนผู้บริโภค</p>
+                        <p><strong>โทร:</strong> 1166</p>
+                        <p><strong>เว็บไซต์:</strong> www.ocpb.go.th</p>
+                    </div>
+                    
+                    <div class="agency-item">
+                        <h4>🏛️ สำนักงานคณะกรรมการกำกับหลักทรัพย์และตลาดหลักทรัพย์</h4>
+                        <p><strong>หน้าที่:</strong> กำกับดูแลตลาดทุน</p>
+                        <p><strong>โทร:</strong> 0-2695-9999</p>
+                        <p><strong>เว็บไซต์:</strong> www.sec.or.th</p>
+                    </div>
+                </div>
+
+                <div id="rights" class="tab-content">
+                    <div class="rights-item">
+                        <h4>🛡️ สิทธิในการได้รับข้อมูล</h4>
+                        <p>ผู้บริโภคมีสิทธิ์ได้รับข้อมูลที่ถูกต้อง ครบถ้วน และไม่บิดเบือน</p>
+                    </div>
+                    
+                    <div class="rights-item">
+                        <h4>🛡️ สิทธิในการเลือก</h4>
+                        <p>ผู้บริโภคมีสิทธิ์เลือกสินค้าและบริการอย่างอิสระ</p>
+                    </div>
+                    
+                    <div class="rights-item">
+                        <h4>🛡️ สิทธิในการได้รับความปลอดภัย</h4>
+                        <p>ผู้บริโภคมีสิทธิ์ได้รับความปลอดภัยจากสินค้าและบริการ</p>
+                    </div>
+                    
+                    <div class="rights-item">
+                        <h4>🛡️ สิทธิในการได้รับการแก้ไขความเสียหาย</h4>
+                        <p>ผู้บริโภคมีสิทธิ์ได้รับการชดเชยความเสียหายอย่างรวดเร็วและเป็นธรรม</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="section">
+            <div class="section-header">
+                <h2 class="section-title">📞 ติดต่อเรา</h2>
+                <p class="section-description">ต้องการความช่วยเหลือเพิ่มเติม? ติดต่อเราได้ตลอด 24 ชั่วโมง</p>
+            </div>
+
+            <div class="contact-container">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="contact-icon">📧</div>
+                        <div class="contact-details">
+                            <h4>อีเมล</h4>
+                            <p>support@sw-bernhardt.com</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">📱</div>
+                        <div class="contact-details">
+                            <h4>โทรศัพท์</h4>
+                            <p>02-xxx-xxxx</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">💬</div>
+                        <div class="contact-details">
+                            <h4>Line Official</h4>
+                            <p>@sw-bernhardt</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">🌐</div>
+                        <div class="contact-details">
+                            <h4>เว็บไซต์</h4>
+                            <p>www.sw-bernhardt.com</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-form">
+                    <h3>📝 ส่งข้อความถึงเรา</h3>
+                    <form onsubmit="submitContactForm(event)">
+                        <div class="form-group">
+                            <label for="contactName">ชื่อ-นามสกุล</label>
+                            <input type="text" id="contactName" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contactEmail">อีเมล</label>
+                            <input type="email" id="contactEmail" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contactSubject">หัวข้อ</label>
+                            <select id="contactSubject" required>
+                                <option value="">เลือกหัวข้อ</option>
+                                <option value="calculator">เครื่องคำนวณสินเชื่อ</option>
+                                <option value="scanner">เครื่องสแกนสัญญา</option>
+                                <option value="legal">คำปรึกษากฎหมาย</option>
+                                <option value="technical">ปัญหาทางเทคนิค</option>
+                                <option value="other">อื่นๆ</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contactMessage">ข้อความ</label>
+                            <textarea id="contactMessage" rows="5" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">📤 ส่งข้อความ</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>SW.BERNHARDT</h4>
+                <p>ระบบช่วยเหลือทางกฎหมายด้วย AI สำหรับประชาชนไทย</p>
+            </div>
+            
+            <div class="footer-section">
+                <h4>ลิงค์ที่เป็นประโยชน์</h4>
+                <ul>
+                    <li><a href="https://www.bot.or.th" target="_blank">ธนาคารแห่งประเทศไทย</a></li>
+                    <li><a href="https://www.ocpb.go.th" target="_blank">สำนักงานคุ้มครองผู้บริโภค</a></li>
+                    <li><a href="https://www.sec.or.th" target="_blank">ก.ล.ต.</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>ข้อมูลติดต่อ</h4>
+                <p>📧 support@sw-bernhardt.com</p>
+                <p>📱 02-xxx-xxxx</p>
+                <p>💬 Line: @sw-bernhardt</p>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2024 SW.BERNHARDT Legal Assistant Platform. All rights reserved.</p>
+            <p><small>ข้อมูลในระบบนี้เป็นการให้คำปรึกษาเบื้องต้นเท่านั้น สำหรับคำแนะนำทางกฎหมายที่เฉพาะเจาะจง ควรปรึกษาทนายความ</small></p>
+        </div>
+    </footer>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <span id="notificationText"></span>
+        <button id="notificationClose">&times;</button>
+    </div>
+
+    <!-- Scripts -->
+    <script src="./js/main.js"></script>
+    <script src="./js/calculator.js"></script>
+    <script src="./js/scanner.js"></script>
+    <script src="./js/matrix.js"></script>
+    
+    <script>
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMatrix();
+            console.log('🚀 SW.BERNHARDT Legal Assistant Platform loaded successfully!');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9834a42a1555fd2a',t:'MTc1ODU3Mzg3Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
