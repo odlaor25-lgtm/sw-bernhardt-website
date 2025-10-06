@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SW.BERNHARDT • เครื่องคำนวณสินเชื่อ (Effective & Flat)</title>
+<style>
+  :root{
+    --bg:#f6fbfe; --card:#ffffff; --pri:#2a74a1; --acc:#eaf5fb; --acc2:#d8eef7;
+    --ink:#0f2b3a; --mut:#5b7480; --ok:#0f986a; --warn:#b56a00; --err:#b00020;
+    --bd:#cfe6f3; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;}
+  .wrap{max-width:1080px;margin:auto;padding:24px;}
+  .title{font-size:20px;font-weight:700;color:var(--pri);margin:4px 0 16px}
+  .grid{display:grid;gap:16px}
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:14px;box-shadow:0 4px 16px rgba(19,77,114,.06)}
+  .card .hd{padding:14px 16px;border-bottom:1px solid var(--bd);background:linear-gradient(180deg,var(--acc),#fff)}
+  .card .hd b{color:var(--pri)}
+  .card .bd{padding:16px}
+  .inputs{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:12px}
+  .row{display:flex;flex-direction:column;gap:6px}
+  label{font-size:14px;color:var(--mut)}
+  input,select{padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:#fff;outline:none}
+  input:focus,select:focus{border-color:var(--pri);box-shadow:0 0 0 3px #e7f3fb}
+  .mut{color:var(--mut)}
+  .help{font-size:13px;color:var(--mut)}
+  .btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+  button{padding:10px 14px;border:1px solid var(--bd);border-radius:10px;background:#fff;cursor:pointer}
+  .btn-primary{background:var(--pri);color:#fff;border-color:var(--pri)}
+  .btn-ghost{background:#fff}
+  .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:var(--acc2);color:var(--pri);font-size:12px}
+  .res-cards{display:grid;grid-template-columns:repeat(3,minmax(200px,1fr));gap:12px}
+  .stat{border:1px dashed var(--bd);border-radius:12px;padding:12px;background:#fff}
+  .stat .k{font-size:12px;color:var(--mut)}
+  .stat .v{font:700 18px/1 var(--mono);margin-top:6px}
+  .warn{color:var(--warn)}
+  .err{color:var(--err)}
+  table{width:100%;border-collapse:separate;border-spacing:0;margin-top:6px;font-size:14px}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--bd);text-align:right}
+  th:first-child, td:first-child{text-align:center}
+  thead th{position:sticky;top:0;background:linear-gradient(180deg,#fff,var(--acc));z-index:1}
+  .tabs{display:flex;gap:8px;margin-top:8px}
+  .tab{padding:8px 12px;border-radius:12px;border:1px solid var(--bd);cursor:pointer;background:#fff}
+  .tab.active{background:var(--acc2);border-color:var(--pri);color:var(--pri);font-weight:700}
+  .footnote{font-size:12px;color:var(--mut);margin-top:10px}
+  @media (max-width:780px){
+    .inputs{grid-template-columns:1fr}
+    .res-cards{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="title">SW.BERNHARDT • เครื่องคำนวณสินเชื่อ (หาอัตราดอกอัตโนมัติ/ค่างวด/ตารางผ่อน)</div>
+
+  <div class="card">
+    <div class="hd"><b>กรอกข้อมูล</b> <span class="pill">ยืดหยุ่น — เลือกคำนวณจาก “ค่างวด” หรือ “ดอกเบี้ย”</span></div>
+    <div class="bd">
+      <div class="inputs">
+        <div class="row">
+          <label>ราคาสินค้า / ราคารถ (บาท)</label>
+          <input id="price" type="number" min="0" step="0.01" value="65000">
+        </div>
+        <div class="row">
+          <label>เงินดาวน์ (บาท)</label>
+          <input id="down" type="number" min="0" step="0.01" value="5000">
+        </div>
+        <div class="row">
+          <label>ค่าดำเนินการ/ประกัน ที่จะ <u>บวกในยอดจัด</u> (บาท) <span class="mut">(ถ้าไม่รวมปล่อยว่าง)</span></label>
+          <input id="fees" type="number" min="0" step="0.01" value="0">
+        </div>
+        <div class="row">
+          <label>จำนวนงวด (เดือน)</label>
+          <input id="months" type="number" min="1" max="120" step="1" value="36">
+        </div>
+        <div class="row">
+          <label>ค่างวดต่อเดือน (บาท) <span class="mut">(ถ้ากรอกช่องนี้ ระบบจะ “หาดอกเบี้ย” อัตโนมัติ)</span></label>
+          <input id="pmt" type="number" min="0" step="0.01" value="2266.67" placeholder="เช่น 2,xxx">
+        </div>
+        <div class="row">
+          <label>อัตราดอกเบี้ย (Effective) ต่อปี (%) <span class="mut">(ถ้ากรอก ระบบจะคำนวณ “ค่างวด”)</span></label>
+          <input id="apr" type="number" min="0" step="0.0001" placeholder="เช่น 18.5">
+        </div>
+      </div>
+
+      <div class="btns">
+        <button class="btn-primary" id="calcBtn">คำนวณ</button>
+        <button class="btn-ghost" id="resetBtn">ล้างค่า</button>
+        <span class="help">หลักการ: ถ้าใส่ <b>ค่างวด</b> → ระบบค้นหา <b>ดอกแท้จริง</b> (RATE); ถ้าใส่ <b>ดอก</b> → ระบบคำนวณ <b>ค่างวด</b>.</span>
+      </div>
+      <div id="msg" class="help" style="margin-top:8px"></div>
+    </div>
+  </div>
+
+  <div class="card" id="resultsCard" style="margin-top:16px;display:none">
+    <div class="hd"><b>ผลลัพธ์สรุป</b></div>
+    <div class="bd">
+      <div class="grid" style="gap:14px">
+        <div class="res-cards">
+          <div class="stat">
+            <div class="k">ยอดจัดไฟแนนซ์ (PV)</div>
+            <div class="v" id="pvOut">-</div>
+            <div class="k">ดอกเบี้ยรวม (บาท)</div>
+            <div class="v" id="intTotalOut">-</div>
+          </div>
+          <div class="stat">
+            <div class="k">Effective ต่อเดือน</div>
+            <div class="v" id="effMOut">-</div>
+            <div class="k">Effective ต่อปี</div>
+            <div class="v" id="effYOut">-</div>
+          </div>
+          <div class="stat">
+            <div class="k">Flat ต่อเดือน (จากค่างวด)</div>
+            <div class="v" id="flatMOut">-</div>
+            <div class="k">Flat ต่อปี (×12)</div>
+            <div class="v" id="flatYOut">-</div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="row">
+            <label>ค่างวดที่ใช้คำนวณ</label>
+            <div class="v" id="pmtUsed" style="font:700 18px/1 var(--mono)"></div>
+            <div class="help">หมายเหตุ: ถ้าใส่ดอก (APR) มา ระบบจะคำนวณค่างวด; ถ้าใส่ค่างวด ระบบจะ “ไล่หาดอก”</div>
+          </div>
+          <div class="btns">
+            <button class="btn-ghost" id="copyBtn">คัดลอกผลลัพธ์</button>
+            <button class="btn-ghost" id="csvBtn">Export CSV ตารางผ่อน</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="scheduleCard" style="margin-top:16px;display:none">
+    <div class="hd"><b>ตารางผ่อนชำระ</b> <span class="pill">Effective vs Flat</span></div>
+    <div class="bd">
+      <div class="tabs">
+        <div class="tab active" data-tab="eff">ลดต้นลดดอก (Effective)</div>
+        <div class="tab" data-tab="flat">Flat</div>
+      </div>
+      <div id="effTableWrap"></div>
+      <div id="flatTableWrap" style="display:none"></div>
+      <div class="footnote">
+        * Effective: ดอก = ยอดยกมา × (อัตรา/เดือน), ค่างวดคงที่, ตัดต้นมากขึ้นเรื่อย ๆ<br/>
+        * Flat: ดอกคงที่ทุกเดือน = PV × flat_rate/เดือน, ตัดต้นเท่า ๆ กัน
+      </div>
+    </div>
+  </div>
+
+  <div class="footnote">
+    © SW.BERNHARDT • ดีไซน์พาสเทลฟ้า • ใช้ได้กับ GitHub Pages (ไฟล์เดียว)
+  </div>
+</div>
+
+<script>
+/* ---------- Utility ---------- */
+const fmt = new Intl.NumberFormat('th-TH',{minimumFractionDigits:2, maximumFractionDigits:2});
+const fmtPct = v => (isFinite(v)? (v*100).toFixed(2)+'%':'-');
+
+function annuityPMT(ratePerM, n, pv){
+  if (Math.abs(ratePerM) < 1e-12) return pv / n; // zero-rate
+  return ratePerM * pv / (1 - Math.pow(1+ratePerM, -n));
+}
+
+// Solve monthly effective rate r from PV, PMT, n with Newton + guard
+function solveRateFromPMT(pv, pmt, n){
+  if (pmt <= 0 || pv <= 0 || n <= 0) return null;
+  // initial guess using simple approximation
+  let r = (pmt/pv) - (1/n);       // from flat formula as rough seed
+  r = Math.max(r, 0.00001);
+  r = Math.min(r, 0.5);          // cap 50%/mo
+
+  for (let i=0;i<100;i++){
+    const denom = 1 - Math.pow(1+r, -n);
+    const f = r*pv/denom - pmt;  // f(r) = PMT(r) - target
+    if (Math.abs(f) < 1e-10) break;
+
+    // derivative of PMT w.r.t r
+    const dden = (Math.pow(1+r, -n) * n) / (1+r);
+    const dPMT = (pv*denom - pv*r*(-dden)) / (denom*denom);
+    // safer step (if derivative tiny)
+    const step = (Math.abs(dPMT) < 1e-12) ? f*0.1 : f/dPMT;
+    r -= step;
+
+    // keep in sensible bounds
+    if (!isFinite(r) || r <= -0.9999) r = 0.00001;
+    if (r > 5) r = 5;
+  }
+  if (!isFinite(r) || r <= 0) return null;
+  return r;
+}
+
+function buildEffSchedule(pv, rM, n, pmt){
+  const rows = [];
+  let bal = pv;
+  for (let i=1;i<=n;i++){
+    const interest = +(bal * rM).toFixed(2);
+    let principal = +(pmt - interest).toFixed(2);
+    if (principal < 0) principal = 0;
+    let closing = +(bal - principal).toFixed(2);
+    if (i===n) { // clean rounding
+      principal = +(bal).toFixed(2);
+      closing = 0;
+    }
+    rows.push([i, bal, interest, principal, pmt, closing]);
+    bal = closing;
+  }
+  return rows;
+}
+
+function buildFlatSchedule(pv, rFlatM, n, pmt){
+  const rows = [];
+  let bal = pv;
+  const interestFix = +(pv * rFlatM).toFixed(2);
+  for (let i=1;i<=n;i++){
+    const interest = interestFix;
+    let principal = +(pmt - interest).toFixed(2);
+    if (principal < 0) principal = 0;
+    let closing = +(bal - principal).toFixed(2);
+    if (i===n) { principal = +(bal).toFixed(2); closing = 0; }
+    rows.push([i, bal, interest, principal, pmt, closing]);
+    bal = closing;
+  }
+  return rows;
+}
+
+function tableHTML(rows){
+  let t = `<table><thead><tr>
+    <th>งวด</th><th>ยอดยกมา</th><th>ดอกเบี้ย</th><th>ตัดต้น</th><th>ค่างวด</th><th>ยอดคงเหลือ</th>
+  </tr></thead><tbody>`;
+  for (const r of rows){
+    t += `<tr><td>${r[0]}</td><td>${fmt.format(r[1])}</td><td>${fmt.format(r[2])}</td><td>${fmt.format(r[3])}</td><td>${fmt.format(r[4])}</td><td>${fmt.format(r[5])}</td></tr>`;
+  }
+  t += `</tbody></table>`;
+  return t;
+}
+
+function toCSV(rows){
+  let out = "งวด,ยอดยกมา,ดอกเบี้ย,ตัดต้น,ค่างวด,ยอดคงเหลือ\n";
+  for (const r of rows){
+    out += `${r[0]},${r[1]},${r[2]},${r[3]},${r[4]},${r[5]}\n`;
+  }
+  return out;
+}
+
+/* ---------- UI Logic ---------- */
+const el = id => document.getElementById(id);
+const calcBtn = el('calcBtn'), resetBtn = el('resetBtn'), msg = el('msg');
+const pvOut = el('pvOut'), intTotalOut = el('intTotalOut');
+const effMOut = el('effMOut'), effYOut = el('effYOut');
+const flatMOut = el('flatMOut'), flatYOut = el('flatYOut'), pmtUsed = el('pmtUsed');
+const resultsCard = el('resultsCard'), scheduleCard = el('scheduleCard');
+const effWrap = el('effTableWrap'), flatWrap = el('flatTableWrap');
+const copyBtn = el('copyBtn'), csvBtn = el('csvBtn');
+
+function calculate(){
+  msg.textContent = '';
+  const price = +el('price').value || 0;
+  const down  = +el('down').value || 0;
+  const fees  = +el('fees').value || 0;
+  const months= Math.max(1, Math.floor(+el('months').value || 0));
+  const pmtIn = +el('pmt').value || 0;
+  const aprIn = +el('apr').value || 0;
+
+  const pv = Math.max(0, price - down + fees);
+  if (pv <= 0){ msg.innerHTML = '<span class="err">ยอดจัดต้องมากกว่า 0</span>'; return; }
+
+  let rM = null, pmt = null, mode = '';
+  if (pmtIn > 0 && aprIn <= 0){
+    // infer rate from PMT
+    rM = solveRateFromPMT(pv, pmtIn, months);
+    if (!rM){ msg.innerHTML = '<span class="err">ไม่สามารถหาดอกเบี้ยจากค่างวดนี้ได้ — ตรวจสอบค่างวด/งวด</span>';return; }
+    pmt = +(annuityPMT(rM, months, pv).toFixed(2));
+    mode = 'fromPMT';
+  }else if (aprIn > 0 && pmtIn <= 0){
+    rM = aprIn/100/12;
+    pmt = +(annuityPMT(rM, months, pv).toFixed(2));
+    mode = 'fromAPR';
+  }else if (aprIn > 0 && pmtIn > 0){
+    // prefer PMT → find rate; then show warning if APR not matching
+    rM = solveRateFromPMT(pv, pmtIn, months);
+    if (!rM){ msg.innerHTML = '<span class="err">ค่างวดและ APR ที่กรอกไม่สอดคล้องกัน</span>';return; }
+    pmt = +(pmtIn.toFixed(2));
+    const rM_apr = aprIn/100/12;
+    const diff = Math.abs(rM - rM_apr);
+    if (diff > 0.002) msg.innerHTML = '<span class="warn">คำเตือน: APR ที่กรอกไม่เท่ากับ APR ที่ได้จากค่างวด (ต่างกันมากกว่า 0.2%/เดือน)</span>';
+    mode = 'both';
+  }else{
+    msg.innerHTML = '<span class="warn">ใส่ค่างวดเพื่อหาดอกเบี้ย หรือใส่ APR เพื่อหาค่างวด อย่างใดอย่างหนึ่ง</span>';
+    return;
+  }
+
+  const effY = Math.pow(1+rM,12)-1;
+  const intTotal = +(pmt*months - pv).toFixed(2);
+
+  // implied flat from PMT (exact under flat model)
+  const rFlatM = (pmt/pv) - (1/months);
+  const rFlatY = rFlatM*12;
+
+  pvOut.textContent = fmt.format(pv);
+  intTotalOut.textContent = fmt.format(intTotal);
+  effMOut.textContent = fmtPct(rM);
+  effYOut.textContent = fmtPct(effY);
+  flatMOut.textContent = isFinite(rFlatM) && rFlatM>0 ? fmtPct(rFlatM) : '-';
+  flatYOut.textContent = isFinite(rFlatY) && rFlatY>0 ? fmtPct(rFlatY) : '-';
+  pmtUsed.textContent = fmt.format(pmt) + ' บาท' + (mode==='fromPMT' ? ' (รับมาจากร้าน)' : '');
+
+  // Build schedules (cap 84 months visually)
+  const n = Math.min(months, 84);
+  const effRows = buildEffSchedule(pv, rM, n, pmt);
+  const flatRows = (rFlatM>0) ? buildFlatSchedule(pv, rFlatM, n, pmt) : [];
+
+  effWrap.innerHTML = tableHTML(effRows);
+  flatWrap.innerHTML = (flatRows.length? tableHTML(flatRows) : '<div class="help">ไม่สามารถสร้างตารางแบบ Flat ได้จากค่าที่กรอก</div>');
+
+  resultsCard.style.display = 'block';
+  scheduleCard.style.display = 'block';
+
+  // CSV export
+  csvBtn.onclick = () => {
+    const all = [['ตารางผ่อน (Effective)'], ...[['งวด','ยอดยกมา','ดอก','ตัดต้น','ค่างวด','ยอดคงเหลือ']], ...effRows];
+    const csvEff = toCSV(effRows);
+    const csvFlat = (flatRows.length? toCSV(flatRows) : 'ไม่มีตาราง Flat');
+    const blob = new Blob([ 'Effective\n', csvEff, '\nFlat\n', csvFlat ], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'schedule_swbernhardt.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  };
+
+  // Copy results
+  copyBtn.onclick = () => {
+    const txt =
+`สรุปการคำนวณ SW.BERNHARDT
+ยอดจัด (PV): ${fmt.format(pv)} บาท
+ค่างวด/เดือน: ${fmt.format(pmt)} บาท
+Effective/เดือน: ${fmtPct(rM)}
+Effective/ปี: ${fmtPct(effY)}
+Flat/เดือน (จากค่างวด): ${isFinite(rFlatM)&&rFlatM>0?fmtPct(rFlatM):'-'}
+Flat/ปี: ${isFinite(rFlatY)&&rFlatY>0?fmtPct(rFlatY):'-'}
+ดอกเบี้ยรวม: ${fmt.format(intTotal)} บาท
+งวดทั้งหมด: ${months} เดือน`;
+    navigator.clipboard.writeText(txt).then(()=> { msg.innerHTML = 'คัดลอกผลลัพธ์แล้ว ✅'; });
+  };
+}
+
+calcBtn.onclick = calculate;
+resetBtn.onclick = () => { document.querySelectorAll('input').forEach(i=>i.value=''); msg.textContent=''; resultsCard.style.display='none'; scheduleCard.style.display='none'; };
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click', e=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    const which = t.dataset.tab;
+    if (which==='eff'){ effWrap.style.display='block'; flatWrap.style.display='none'; }
+    else { effWrap.style.display='none'; flatWrap.style.display='block'; }
+  });
+});
+
+// Auto-run once with defaults
+calculate();
+</script>
+</body>
+</html>
